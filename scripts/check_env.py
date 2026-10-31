@@ -93,7 +93,7 @@ def main() -> int:
     if failures:
         print(f"FAIL {failures}건 — 위 [FAIL] 줄의 안내대로 고친 뒤 다시 실행하세요.")
         return 1
-    print("모두 OK — 이 화면을 캡처해 제출하세요.")
+    print("모두 OK — 실습 준비가 끝났습니다.")
     return 0
 
 
