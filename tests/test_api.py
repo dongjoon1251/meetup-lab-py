@@ -93,12 +93,16 @@ def test_register_returns_201_confirmed(client):
     assert (body["id"], body["seq"], body["status"], body["created_at"]) == ("REG-1", 1, "CONFIRMED", "2026-10-25T01:00:00Z")
 
 
-def test_register_over_capacity_is_409(client):
-    # 이슈 #1 구현 전 동작 — 정원(3)이 차면 409 정원 초과
+def test_register_over_capacity_is_waitlisted(client):
     for member_id in ("M-01", "M-02", "M-03"):
         register(client, member_id)
     r = register(client, "M-04")
-    assert (r.status_code, r.json()["detail"]) == (409, "정원 초과")
+    assert (r.status_code, r.json()["status"]) == (201, "WAITLISTED")
+
+
+def test_duplicate_registration_is_409(client):
+    register(client, "M-01")
+    assert register(client, "M-01").status_code == 409
 
 
 def test_register_unknown_event_is_404(client):
