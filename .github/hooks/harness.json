@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 .github/hooks/scripts/block_dangerous.py",
+        "powershell": "python .github/hooks/scripts/block_dangerous.py",
+        "timeoutSec": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "edit|create|write|apply_patch|replace_string_in_file|multi_replace_string_in_file|create_file|edit_file",
+        "type": "command",
+        "bash": "python3 .github/hooks/scripts/run_tests.py",
+        "powershell": "python .github/hooks/scripts/run_tests.py",
+        "timeoutSec": 180
+      }
+    ]
+  }
+}

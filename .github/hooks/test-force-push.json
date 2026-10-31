@@ -1,0 +1,5 @@
+{
+  "hookEventName": "preToolUse",
+  "toolName": "run_in_terminal",
+  "toolArgs": {"command": "git push origin main --force"}
+}
