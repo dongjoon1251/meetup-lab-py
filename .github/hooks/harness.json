@@ -7,6 +7,12 @@
         "bash": "python3 .github/hooks/scripts/block_dangerous.py",
         "powershell": "python .github/hooks/scripts/block_dangerous.py",
         "timeoutSec": 10
+      },
+      {
+        "type": "command",
+        "bash": "python3 .github/hooks/scripts/block_merge.py",
+        "powershell": "python .github/hooks/scripts/block_merge.py",
+        "timeoutSec": 10
       }
     ],
     "postToolUse": [

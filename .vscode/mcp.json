@@ -1,0 +1,30 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "meetup-api-key",
+      "description": "Meetup API key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "meetup": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/mcp_server/meetup_mcp.py"
+      ],
+      "env": {
+        "MEETUP_API": "http://127.0.0.1:8000",
+        "MEETUP_API_KEY": "${input:meetup-api-key}"
+      }
+    },
+    "meetup-http": {
+      "type": "http",
+      "url": "http://127.0.0.1:8001/mcp",
+      "headers": {
+        "X-API-Key": "${input:meetup-api-key}"
+      }
+    }
+  }
+}
