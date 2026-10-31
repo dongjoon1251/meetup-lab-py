@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>meetup-lab 상태</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #667085; --line: #e4e7ec;
+    --bar: #4f6bed; --bar-bg: #eef1fd;
+    --ok-bg: #e7f6ec; --ok: #1a7f3c; --wait-bg: #fff4e0; --wait: #a15c00; --off-bg: #f0f1f3; --off: #5d6472;
+    --err-bg: #fdecec; --err: #b42318;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+  .updated { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .error { display: none; margin-bottom: 16px; padding: 10px 14px; border-radius: 8px;
+           background: var(--err-bg); color: var(--err); font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .event-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px 24px; color: var(--muted); }
+  .facts b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .vote { display: grid; grid-template-columns: 6em 1fr 3em; align-items: center; gap: 12px; margin: 8px 0; }
+  .track { height: 18px; background: var(--bar-bg); border-radius: 4px; overflow: hidden; }
+  .fill { height: 100%; background: var(--bar); border-radius: 4px; transition: width .3s; }
+  .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.seq { width: 5em; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+  .CONFIRMED { background: var(--ok-bg); color: var(--ok); }
+  .WAITLISTED { background: var(--wait-bg); color: var(--wait); }
+  .CANCELLED { background: var(--off-bg); color: var(--off); }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>meetup-lab 상태 화면</h1>
+    <span class="updated">마지막 갱신 <span id="updated">--:--:--</span></span>
+  </header>
+
+  <div id="error" class="error"></div>
+
+  <section class="card" id="event-card">
+    <div class="event-title" id="event-title">EVT-01</div>
+    <div class="facts">
+      <span>정원 <b id="capacity">-</b> · 확정 <b id="confirmed">-</b></span>
+      <span>투표 마감 <b id="closes">-</b> (KST)</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>메뉴 투표</h2>
+    <div id="votes"><div class="empty">불러오는 중…</div></div>
+  </section>
+
+  <section class="card">
+    <h2>신청 현황</h2>
+    <table>
+      <thead><tr><th>순번(seq)</th><th>회원</th><th>상태</th></tr></thead>
+      <tbody id="registrations"><tr><td colspan="3" class="empty">불러오는 중…</td></tr></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+// 읽기 전용 화면 — 기존 GET API 세 개만 3초마다 읽는다. 쓰기 요청은 보내지 않는다.
+const EVENT_ID = "EVT-01";
+const REFRESH_MS = 3000;
+const $ = (id) => document.getElementById(id);
+const pad = (n) => String(n).padStart(2, "0");
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+const kst = (iso) => {  // UTC 시각 → "2026-10-31 01:00" (KST)
+  const d = new Date(new Date(iso).getTime() + KST_OFFSET_MS);
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+};
+const clock = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+class ApiError extends Error {
+  constructor(status) { super(`HTTP ${status}`); this.status = status; }
+}
+
+async function getJson(path) {
+  const res = await fetch(path, { cache: "no-store" });
+  if (!res.ok) throw new ApiError(res.status);
+  return res.json();
+}
+
+function showError(message) {
+  $("error").textContent = message;
+  $("error").style.display = message ? "block" : "none";
+}
+
+function renderEvent(event, registrations) {
+  $("event-title").textContent = `${event.title} (${event.id})`;
+  $("capacity").textContent = event.capacity;
+  $("confirmed").textContent = registrations.filter((r) => r.status === "CONFIRMED").length;
+  $("closes").textContent = kst(event.vote_closes_at);
+}
+
+function renderVotes(poll) {
+  const max = Math.max(1, ...poll.results.map((r) => r.votes));
+  $("votes").innerHTML = poll.results.map((r) => `
+    <div class="vote">
+      <span>${esc(r.name)}</span>
+      <div class="track"><div class="fill" style="width:${(r.votes / max) * 100}%"></div></div>
+      <span class="count">${r.votes}</span>
+    </div>`).join("");
+}
+
+function renderRegistrations(registrations) {
+  const rows = [...registrations].sort((a, b) => a.seq - b.seq);
+  $("registrations").innerHTML = rows.length
+    ? rows.map((r) => `
+      <tr>
+        <td class="seq">${r.seq}</td>
+        <td>${esc(r.member_id)}</td>
+        <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span></td>
+      </tr>`).join("")
+    : `<tr><td colspan="3" class="empty">신청 없음</td></tr>`;
+}
+
+async function refresh() {
+  try {
+    const [event, poll, registrations] = await Promise.all([
+      getJson(`/events/${EVENT_ID}`),
+      getJson(`/events/${EVENT_ID}/votes/results`),
+      getJson(`/events/${EVENT_ID}/registrations`),
+    ]);
+    renderEvent(event, registrations);
+    renderVotes(poll);
+    renderRegistrations(registrations);
+    showError("");
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) showError("API 키가 필요합니다 (MEETUP_API_KEY 설정됨)");
+    else if (e instanceof ApiError) showError(`조회 실패: ${e.message}`);
+    else showError("서버에 연결할 수 없습니다");
+  }
+  $("updated").textContent = clock(new Date());
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

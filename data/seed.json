@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "id": "EVT-01",
+      "title": "10월 스터디 정기 모임",
+      "capacity": 3,
+      "starts_in_hours": 48,
+      "vote_closes_in_hours": 24,
+      "menu": [
+        {"id": "MENU-1", "name": "피자"},
+        {"id": "MENU-2", "name": "김밥"},
+        {"id": "MENU-3", "name": "샌드위치"}
+      ]
+    }
+  ]
+}
