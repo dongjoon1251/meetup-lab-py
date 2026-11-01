@@ -11,6 +11,7 @@
     "meetup": {
       "type": "stdio",
       "command": "${workspaceFolder}/.venv/bin/python",
+      // Windows: "${workspaceFolder}/.venv/Scripts/python.exe"
       "args": [
         "${workspaceFolder}/mcp_server/meetup_mcp.py"
       ],
