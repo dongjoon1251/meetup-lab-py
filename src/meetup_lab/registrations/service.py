@@ -1,4 +1,4 @@
-"""과제 ① 정답: 신청 순번 기반 대기 등록·자동 승격. 동시성 보강은 M6 리뷰."""
+"""과제 ① 정답: 신청 순번 기반 대기 등록·자동 승격."""
 
 import logging
 from datetime import datetime, timezone

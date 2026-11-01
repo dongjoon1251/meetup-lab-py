@@ -14,7 +14,6 @@ def registration_report(event_id: str, from_date: date, to_date: date) -> dict:
 
     WAITLISTED is supplementary status history and is not another signup.
 
-    day_range deliberately retains the local-timezone bug for the M6 CI lab.
     The range is inclusive; days without history are returned with zero counts.
     """
     from meetup_lab.store import store
