@@ -6,6 +6,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
+# VS Code starts hooks with the system Python, which has no pytest; prefer the lab venv.
+PYTHON = next((str(p) for p in (ROOT / '.venv/Scripts/python.exe', ROOT / '.venv/bin/python')
+               if p.exists()), sys.executable)
 
 
 def main() -> None:
@@ -18,7 +21,7 @@ def main() -> None:
     env.update(TZ='UTC', PYTHONPATH=str(ROOT / 'src'), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',
                PYTHONDONTWRITEBYTECODE='1')
     try:
-        result = subprocess.run([sys.executable, '-m', 'pytest', '-q'], cwd=ROOT,
+        result = subprocess.run([PYTHON, '-m', 'pytest', '-q'], cwd=ROOT,
                                 env=env, text=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, timeout=150)
         summary = f'exit={result.returncode}\n{result.stdout[-16000:]}'

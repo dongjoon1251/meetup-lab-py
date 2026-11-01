@@ -10,7 +10,7 @@
   "servers": {
     "meetup": {
       "type": "stdio",
-      "command": "python",
+      "command": "${workspaceFolder}/.venv/bin/python",
       "args": [
         "${workspaceFolder}/mcp_server/meetup_mcp.py"
       ],
