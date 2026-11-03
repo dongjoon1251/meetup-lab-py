@@ -54,7 +54,7 @@ def main() -> None:
     output = {'hookSpecificOutput': {'hookEventName': 'preToolUse'}}
     if deny:
         output['hookSpecificOutput'].update(permissionDecision='deny', permissionDecisionReason=reason)
-    print(json.dumps(output, ensure_ascii=False))
+    print(json.dumps(output))  # ASCII JSON: 한글 Windows 에서도 안 깨짐
 
 
 if __name__ == '__main__':

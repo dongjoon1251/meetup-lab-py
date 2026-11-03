@@ -10,10 +10,13 @@
 ```bash
 python -m venv .venv
 # Windows: .venv\Scripts\Activate.ps1   mac/Linux: source .venv/bin/activate
+# Windows 에서 '스크립트를 실행할 수 없으므로' 오류가 나면 먼저: Set-ExecutionPolicy -Scope Process Bypass
 python -m pip install -r requirements.txt
 python scripts/check_env.py
 python -m pytest -q
 ```
+
+Windows ARM 노트북(Snapdragon 등)은 **x64** Python 3.12 를 설치한다. ARM64 Python 에서는 `mcp` 의 의존성(cryptography)이 설치되지 않는다.
 
 ## 실행
 
