@@ -8,7 +8,7 @@
 ## 시작하기
 
 ```bash
-python -m venv .venv
+python -m venv .venv      # mac 에서 python 이 없으면 python3 -m venv .venv
 # Windows: .venv\Scripts\Activate.ps1   mac/Linux: source .venv/bin/activate
 # Windows 에서 '스크립트를 실행할 수 없으므로' 오류가 나면 먼저: Set-ExecutionPolicy -Scope Process Bypass
 python -m pip install -r requirements.txt
