@@ -25,7 +25,7 @@ def main() -> None:
             permissionDecisionReason='Harness: merge는 사람이 PR·CI·리뷰를 확인하고 명시적으로 승인하여 GitHub에서 직접 수행하세요.')
     with (ROOT / '.github/hooks/hook.log').open('a', encoding='utf-8') as stream:
         stream.write(f'preToolUse merge-guard deny={deny}\n')
-    print(json.dumps(output, ensure_ascii=False))
+    print(json.dumps(output))  # ASCII JSON: 한글 Windows 에서도 안 깨짐
 
 
 if __name__ == '__main__':

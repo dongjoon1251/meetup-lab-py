@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,5 +37,6 @@ def test_check_registration_basic_log_has_no_waitlist_or_promotion():
     out = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "check_registration.py"), str(SAMPLES / "basic.log")],
         capture_output=True, text=True, encoding="utf-8", check=True,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},  # 한글 Windows(cp949)에서도 UTF-8 로 받기
     ).stdout
     assert "참가 2명 · 대기 0명 · 취소 1명 · 승격 0건" in out

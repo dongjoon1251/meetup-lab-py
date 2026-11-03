@@ -19,10 +19,11 @@ def main() -> None:
         pass
     env = os.environ.copy()
     env.update(TZ='UTC', PYTHONPATH=str(ROOT / 'src'), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',
-               PYTHONDONTWRITEBYTECODE='1')
+               PYTHONDONTWRITEBYTECODE='1', PYTHONIOENCODING='utf-8')
     try:
         result = subprocess.run([PYTHON, '-m', 'pytest', '-q'], cwd=ROOT,
-                                env=env, text=True, stdout=subprocess.PIPE,
+                                env=env, text=True, encoding='utf-8', errors='replace',
+                                stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, timeout=150)
         summary = f'exit={result.returncode}\n{result.stdout[-16000:]}'
     except (OSError, subprocess.TimeoutExpired) as exc:
@@ -32,7 +33,7 @@ def main() -> None:
     with (ROOT / '.github/hooks/hook.log').open('a', encoding='utf-8') as stream:
         stream.write('postToolUse pytest(UTC): ' + summary.replace('\n', ' ')[-2000:] + '\n')
     print(json.dumps({'hookSpecificOutput': {'hookEventName': 'postToolUse',
-                                            'additionalContext': context}}, ensure_ascii=False))
+                                            'additionalContext': context}}))  # ASCII JSON: 한글 Windows 에서도 안 깨짐
 
 
 if __name__ == '__main__':
