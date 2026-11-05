@@ -29,7 +29,7 @@ def main() -> None:
     except (OSError, subprocess.TimeoutExpired) as exc:
         summary = f'테스트 실행 실패: {exc}'
     context = ('[Harness] UTC 시간대 pytest\n' + summary +
-               '\n관계없는 실패면 고치지 말고 보고만 하세요. M6 전 day_range 알려진 실패 한 건은 유지합니다.')
+               '\n관계없는 실패면 고치지 말고 보고만 하세요. 섹션 7 전 day_range 알려진 실패 한 건은 유지합니다.')
     with (ROOT / '.github/hooks/hook.log').open('a', encoding='utf-8') as stream:
         stream.write('postToolUse pytest(UTC): ' + summary.replace('\n', ' ')[-2000:] + '\n')
     print(json.dumps({'hookSpecificOutput': {'hookEventName': 'postToolUse',

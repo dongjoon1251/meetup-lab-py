@@ -1,4 +1,4 @@
-"""Keep merging in the human approval step of the M6 lab."""
+"""Keep merging in the human approval step of the section 7 lab."""
 import json
 import re
 import sys
