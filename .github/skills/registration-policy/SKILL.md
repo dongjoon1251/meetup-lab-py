@@ -6,7 +6,7 @@ description: 행사 신청·취소·대기자 승격 규칙을 구현·수정할
 2. 정원 경계·중복 신청·취소 재요청 실패 테스트를 먼저 작성한다.
 3. registrations/service.py에서 신청·취소·승격을 최소 수정한다.
 4. python -m pytest -q를 Asia/Seoul 및 UTC에서 실행한다.
-   UTC의 test_day_range_includes_early_morning_kst만 M6 전까지 알려진 실패다.
+   UTC의 test_day_range_includes_early_morning_kst만 섹션 7 전까지 알려진 실패다.
 5. python scripts/check_registration.py data/samples/waitlist.log로 상태·대기 순서를 확인한다.
 
 체크리스트:
